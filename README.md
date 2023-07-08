@@ -24,15 +24,15 @@ Rovms_Contacts_SEL contactSelectorMock = (Rovms_Contacts_SEL) mocks.mock(Rovms_C
 // Set Mocks
 mocks.startStubbing();
 mocks.when(userSelectorMock.sObjectType()).thenReturn(User.getSObjectType());
-mocks.when(sel1Mock.selectByIds(-- ARGS --)).thenReturn(-- RET ARGS --);
+mocks.when(userSelectorMock.selectByIds(-- ARGS --)).thenReturn(-- RET ARGS --);
 mocks.when(contactSelectorMock.sObjectType()).thenReturn(Contact.getSObjectType());
-mocks.when(sel2Mock.selectBest100(-- ARGS --)).thenReturn(-- RET ARGS --);
+mocks.when(contactSelectorMock.selectBest100(-- ARGS --)).thenReturn(-- RET ARGS --);
 mocks.when(contactDomainMock.sObjectType()).thenReturn(Contact.getSObjectType());
-mocks.when(sel1Mock.assignBestContacts(-- ARGS --)).thenReturn(-- RET ARGS --);
+mocks.when(contactDomainMock.assignBestContacts(-- ARGS --)).thenReturn(-- RET ARGS --);
 mocks.when(userDomainMock.sObjectType()).thenReturn(User.getSObjectType());
-mocks.when(sel2Mock.getFirstNameToUser(-- ARGS --)).thenReturn(-- RET ARGS --);
+mocks.when(userDomainMock.getFirstNameToUser(-- ARGS --)).thenReturn(-- RET ARGS --);
 mocks.when(userServiceMock.sObjectType()).thenReturn(User.getSObjectType());
-mocks.when(sel1Mock.refresh(-- ARGS --)).thenReturn(-- RET ARGS --);
+mocks.when(userServiceMock.refresh(-- ARGS --)).thenReturn(-- RET ARGS --);
 mocks.stopStubbing();
 
 ITBA_Application_UTIL.selector.setMock(Rovms_Users_SEL);

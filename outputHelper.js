@@ -20,7 +20,8 @@ export const initSelectorMocks = (selectors) => {
 export const initDomainMocks = (domains) => {
 	let outputStr = "";
 	Object.entries(domains).forEach(([dom, usedMethods], index) => {
-		outputStr += `${dom} dom${index + 1}Mock = (${dom}) mocks.mock(${dom}.class);\n`;
+		const objName = tryGetObjectName(sel);
+		outputStr += `${dom} ${objName.charAt(0).toLowerCase() + objName.slice(1)}DomainMock = (${dom}) mocks.mock(${dom}.class);\n`;
 	});
 	return outputStr;
 };
@@ -38,11 +39,10 @@ export const initStubbedSelectors = (selectors) => {
 	let outputStr = "";
 	Object.entries(selectors).forEach(([sel, usedMethods], index) => {
 		const objName = tryGetObjectName(sel);
-		outputStr += `mocks.when(${objName.charAt(0).toLowerCase() + objName.slice(1)}SelectorMock.sObjectType()).thenReturn(${tryGetObjectName(
-			sel
-		)}.getSObjectType());\n`;
+		const camelCaseName = objName.charAt(0).toLowerCase() + objName.slice(1);
+		outputStr += `mocks.when(${camelCaseName}SelectorMock.sObjectType()).thenReturn(${tryGetObjectName(sel)}.getSObjectType());\n`;
 		usedMethods.forEach((um) => {
-			outputStr += `mocks.when(sel${index + 1}Mock.${um}(-- ARGS --)).thenReturn(-- RET ARGS --);\n`;
+			outputStr += `mocks.when(${camelCaseName}SelectorMock.${um}(-- ARGS --)).thenReturn(-- RET ARGS --);\n`;
 		});
 	});
 	return outputStr;
@@ -51,11 +51,10 @@ export const initStubbedDomains = (domains) => {
 	let outputStr = "";
 	Object.entries(domains).forEach(([dom, usedMethods], index) => {
 		const objName = tryGetObjectName(dom);
-		outputStr += `mocks.when(${objName.charAt(0).toLowerCase() + objName.slice(1)}DomainMock.sObjectType()).thenReturn(${tryGetObjectName(
-			dom
-		)}.getSObjectType());\n`;
+		const camelCaseName = objName.charAt(0).toLowerCase() + objName.slice(1);
+		outputStr += `mocks.when(${camelCaseName}DomainMock.sObjectType()).thenReturn(${tryGetObjectName(dom)}.getSObjectType());\n`;
 		usedMethods.forEach((um) => {
-			outputStr += `mocks.when(sel${index + 1}Mock.${um}(-- ARGS --)).thenReturn(-- RET ARGS --);\n`;
+			outputStr += `mocks.when(${camelCaseName}DomainMock.${um}(-- ARGS --)).thenReturn(-- RET ARGS --);\n`;
 		});
 	});
 	return outputStr;
@@ -65,11 +64,10 @@ export const initStubbedServices = (services) => {
 	let outputStr = "";
 	Object.entries(services).forEach(([srv, usedMethods], index) => {
 		const objName = tryGetObjectName(srv);
-		outputStr += `mocks.when(${objName.charAt(0).toLowerCase() + objName.slice(1)}ServiceMock.sObjectType()).thenReturn(${tryGetObjectName(
-			srv
-		)}.getSObjectType());\n`;
+		const camelCaseName = objName.charAt(0).toLowerCase() + objName.slice(1);
+		outputStr += `mocks.when(${camelCaseName}ServiceMock.sObjectType()).thenReturn(${tryGetObjectName(srv)}.getSObjectType());\n`;
 		usedMethods.forEach((um) => {
-			outputStr += `mocks.when(sel${index + 1}Mock.${um}(-- ARGS --)).thenReturn(-- RET ARGS --);\n`;
+			outputStr += `mocks.when(${camelCaseName}ServiceMock.${um}(-- ARGS --)).thenReturn(-- RET ARGS --);\n`;
 		});
 	});
 	return outputStr;
