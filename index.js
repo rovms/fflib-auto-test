@@ -4,7 +4,6 @@ import fs from "fs/promises";
 import * as outputHelper from "./outputHelper.js";
 
 const run = async (classPath, methodName) => {
-	// const [file, method] = classPath.split("/");
 	const classStr = await parseFile(classPath);
 	const classPathElements = classPath.split("/");
 	const className = classPathElements[classPathElements.length - 1].split(".")[0];

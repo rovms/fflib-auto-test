@@ -6,11 +6,15 @@
 	"type": "module",
 	"scripts": {
 		"ct": "node ./index.js",
-		"create-test": "node ./index.js"
+		"create-test": "node ./index.js",
+		"config": "node ./config.js"
 	},
 	"bin": "./index.js",
 	"keywords": [],
 	"author": "",
 	"license": "ISC",
-	"dependencies": {}
+	"dependencies": {
+		"commander": "^11.0.0",
+		"conf": "^11.0.1"
+	}
 }
