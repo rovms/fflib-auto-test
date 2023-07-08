@@ -3,7 +3,7 @@ import { Command } from "commander";
 
 const config = new Conf({ projectName: "fflib-auto-test" });
 const program = new Command();
-program.version("1.0.0");
+program.version("1.0.1");
 program.option(
 	"-nm, --nounMode <mode>",
 	"Whether to use singular (s) or plural (p) for nouns. Used to infer object names automatically from class names in the project. Default is singular (s)."
