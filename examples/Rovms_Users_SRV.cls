@@ -1,6 +1,6 @@
-public class Rovms_Random_SRV {
+public class Rovms_Users_SRV {
 	public static IService newInstance() {
-		return (Rovms_Random_SRV) Rovms_Application_UTIL.service.newInstance(Rovms_Random_SRV.class);
+		return (Rovms_Users_SRV) Rovms_Application_UTIL.service.newInstance(Rovms_Users_SRV.class);
 	}
 
 	public interface IService {

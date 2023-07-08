@@ -1,3 +1,6 @@
+import Conf from "conf";
+const config = new Conf({ projectName: "fflib-auto-test" });
+
 export const initUowMocks = (method) => {
 	if (method.includes("fflib_ISObjectUnitOfWork")) {
 		return `fflib_ISObjectUnitOfWork uowMock = new fflib_SObjectMocks.SObjectUnitOfWork(mocks);\n`;
@@ -8,7 +11,8 @@ export const initUowMocks = (method) => {
 export const initSelectorMocks = (selectors) => {
 	let outputStr = "";
 	Object.entries(selectors).forEach(([sel, usedMethods], index) => {
-		outputStr += `${sel} sel${index + 1}Mock = (${sel}) mocks.mock(${sel}.class);\n`;
+		const objName = tryGetObjectName(sel);
+		outputStr += `${sel} ${objName.charAt(0).toLowerCase() + objName.slice(1)}SelectorMock = (${sel}) mocks.mock(${sel}.class);\n`;
 	});
 	return outputStr;
 };
@@ -24,7 +28,8 @@ export const initDomainMocks = (domains) => {
 export const initServiceMocks = (services) => {
 	let outputStr = "";
 	Object.entries(services).forEach(([srv, usedMethods], index) => {
-		outputStr += `${srv} srv${index + 1}Mock = (${srv}) mocks.mock(${srv}.class);\n`;
+		const objName = tryGetObjectName(sel);
+		outputStr += `${srv} ${objName.charAt(0).toLowerCase() + objName.slice(1)}ServiceMock = (${srv}) mocks.mock(${srv}.class);\n`;
 	});
 	return outputStr;
 };
@@ -32,7 +37,10 @@ export const initServiceMocks = (services) => {
 export const initStubbedSelectors = (selectors) => {
 	let outputStr = "";
 	Object.entries(selectors).forEach(([sel, usedMethods], index) => {
-		outputStr += `mocks.when(sel${index + 1}Mock.sObjectType()).thenReturn(OBJECT.getSObjectType());\n`;
+		const objName = tryGetObjectName(sel);
+		outputStr += `mocks.when(${objName.charAt(0).toLowerCase() + objName.slice(1)}SelectorMock.sObjectType()).thenReturn(${tryGetObjectName(
+			sel
+		)}.getSObjectType());\n`;
 		usedMethods.forEach((um) => {
 			outputStr += `mocks.when(sel${index + 1}Mock.${um}(-- ARGS --)).thenReturn(-- RET ARGS --);\n`;
 		});
@@ -42,7 +50,10 @@ export const initStubbedSelectors = (selectors) => {
 export const initStubbedDomains = (domains) => {
 	let outputStr = "";
 	Object.entries(domains).forEach(([dom, usedMethods], index) => {
-		outputStr += `mocks.when(sel${index + 1}Mock.sObjectType()).thenReturn(OBJECT.getSObjectType());\n`;
+		const objName = tryGetObjectName(dom);
+		outputStr += `mocks.when(${objName.charAt(0).toLowerCase() + objName.slice(1)}DomainMock.sObjectType()).thenReturn(${tryGetObjectName(
+			dom
+		)}.getSObjectType());\n`;
 		usedMethods.forEach((um) => {
 			outputStr += `mocks.when(sel${index + 1}Mock.${um}(-- ARGS --)).thenReturn(-- RET ARGS --);\n`;
 		});
@@ -53,7 +64,10 @@ export const initStubbedDomains = (domains) => {
 export const initStubbedServices = (services) => {
 	let outputStr = "";
 	Object.entries(services).forEach(([srv, usedMethods], index) => {
-		outputStr += `mocks.when(sel${index + 1}Mock.sObjectType()).thenReturn(OBJECT.getSObjectType());\n`;
+		const objName = tryGetObjectName(srv);
+		outputStr += `mocks.when(${objName.charAt(0).toLowerCase() + objName.slice(1)}ServiceMock.sObjectType()).thenReturn(${tryGetObjectName(
+			srv
+		)}.getSObjectType());\n`;
 		usedMethods.forEach((um) => {
 			outputStr += `mocks.when(sel${index + 1}Mock.${um}(-- ARGS --)).thenReturn(-- RET ARGS --);\n`;
 		});
@@ -80,7 +94,36 @@ export const setDomains = (domains) => {
 export const setServices = (services) => {
 	let outputStr = "";
 	Object.entries(services).forEach(([srv, usedMethods], index) => {
-		outputStr += `ITBA_Application_UTIL.service.setMock(${srv}.class, srv${index + 1}Mock);\n`;
+		const objName = tryGetObjectName(srv);
+		outputStr += `ITBA_Application_UTIL.service.setMock(${srv}.class, ${objName.charAt(0).toLowerCase() + objName.slice(1)}ServiceMock);\n`;
 	});
 	return outputStr;
+};
+
+const tryGetObjectName = (className) => {
+	try {
+		const elements = className.split("_");
+		let objNameSingular = elements[1];
+		if (config.get("nounMode") === "plural") {
+			objNameSingular = singulariseNoun(objNameSingular);
+		}
+		return objNameSingular;
+	} catch (error) {
+		console.log(`Could not infer object name for ${className}`);
+	}
+	return "object?";
+};
+
+// Source: https://stackoverflow.com/questions/57429677/javascript-make-a-word-singular-singularize
+const singulariseNoun = (noun) => {
+	const endings = {
+		ves: "fe",
+		ies: "y",
+		i: "us",
+		zes: "ze",
+		ses: "s",
+		es: "e",
+		s: "",
+	};
+	return noun.replace(new RegExp(`(${Object.keys(endings).join("|")})$`), (r) => endings[r]);
 };
