@@ -1,59 +1,52 @@
 #!/usr/bin/env node
 import { argv } from "node:process";
 import fs from "fs/promises";
+import * as outputHelper from "./outputHelper.js";
 
-const run = async (methodPath) => {
-	const [file, method] = methodPath.split("/");
-	const fileStr = await parseFile(file);
-	if (!fileStr.includes(method)) {
-		console.error(`The passed method '${method}' was not found in this file.`);
+const run = async (classPath, methodName) => {
+	// const [file, method] = classPath.split("/");
+	const classStr = await parseFile(classPath);
+	const classPathElements = classPath.split("/");
+	const className = classPathElements[classPathElements.length - 1].split(".")[0];
+	let outputStr = `@isTest\nprivate static void ${methodName}_test() {\n// Set up mocks\nfflib_ApexMocks mocks = new fflib_ApexMocks();\n`;
+
+	methodName += "("; // appending '(' to make sure it's the correct method
+	if (!classStr.includes(methodName)) {
+		console.error(`The passed method '${methodName}' was not found in this file.`);
+		process.exit(1);
 	}
 	//TODO: differentiate between method instantiation and usage! with lastIndexOf(...)
 	//TODO: handle method in interface does not count!
 
-	let outputStr = `@isTest private static void ${method}_test() {\n// Set up mocks\nfflib_ApexMocks mocks = new fflib_ApexMocks();\n`;
-	const afterMethod = fileStr.split(method)[2];
-	const scopedMethod = findMethodScope(afterMethod);
-	const selectors = createMocks(scopedMethod, "_SEL");
-	const services = createMocks(scopedMethod, "_SRV");
-	console.log(selectors);
-	console.log(services);
+	const methodReferences = findMethodReferences(classStr, methodName);
+	const actualMethodStr = findActualMethodImplementation(classStr, methodName, methodReferences);
+	const scopedMethod = findMethodScope(actualMethodStr);
 
-	const addSelectorMock = (val, key, map) => {
-		outputStr += `${key} selMock = (${key}) mocks.mock(${key}.class);\n`;
-	};
-	const addStubbedSelector = (val, key, map) => {
-		outputStr += `mocks.when(selMock.sObjectType()).thenReturn(OBJECT.getSObjectType());\n`;
+	// const afterMethod = classStr.split(methodName)[2];
 
-		val.forEach((v) => {
-			outputStr += `mocks.when(selMock.${v}(args)).thenReturn(returnObj);\n`;
-		});
-	};
-	const setSelectorMock = (val, key, map) => {
-		outputStr += `ITBA_Application_UTIL.selector.setMock(${key});\n`;
-	};
+	const selectors = findUsagesByType(scopedMethod, "_SEL");
+	const domains = findUsagesByType(scopedMethod, "_DOM");
+	const services = findUsagesByType(scopedMethod, "_SRV");
 
-	if (selectors) {
-		selectors.forEach(addSelectorMock);
-	}
+	outputStr += outputHelper.initUowMocks(scopedMethod);
+	outputStr += outputHelper.initSelectorMocks(selectors);
 
-	outputStr += `\n// Given\n//TODO:\n\n`;
-
+	outputStr += `\n// Given\n// -- SETUP DATA (MOCKED) HERE -- \n\n`;
 	outputStr += `\n// Set Mocks\nmocks.startStubbing();\n`;
 
-	if (selectors) {
-		selectors.forEach(addStubbedSelector);
-	}
+	outputStr += outputHelper.initStubbedSelectors(selectors);
+	outputStr += outputHelper.initStubbedDomains(domains);
+	outputStr += outputHelper.initStubbedServices(services);
 
 	outputStr += `mocks.stopStubbing();\n\n`;
 
-	if (selectors) {
-		selectors.forEach(setSelectorMock);
-	}
+	outputStr += outputHelper.setSelectors(selectors);
+	outputStr += outputHelper.setDomains(domains);
+	outputStr += outputHelper.setServices(services);
 
 	outputStr += `\n// When\n`;
-	outputStr += `${file.split(".")[0]}.newInstance().${method}(args);\n`;
-	outputStr += `\n// Then\n//TODO:\n`;
+	outputStr += `${className.split(".")[0]}.newInstance().${methodName}(-- ARGS --);\n`;
+	outputStr += `\n// Then\n//-- VERIFY TEST RESULTS --\n`;
 
 	console.log(outputStr);
 };
@@ -64,14 +57,20 @@ const parseFile = async (filePath) => {
 };
 
 const findMethodScope = (methodStr) => {
-	let openingBracketCounter = 0;
+	let openingBracketPosition = methodStr.indexOf("{");
+	let iDeclarationEndPosition = methodStr.indexOf(";");
 
-	let startPosition = methodStr.indexOf("{");
-	let position = startPosition;
-
-	if (position !== -1) {
-		openingBracketCounter = 1;
+	if (iDeclarationEndPosition > 0 && iDeclarationEndPosition < openingBracketPosition) {
+		return findMethodScope(methodStr.slice(iDeclarationEndPosition + 1));
 	}
+
+	let position = openingBracketPosition;
+	if (position === -1) {
+		console.error("No opening '{' found - most likely service declaration.");
+		// process.exit(1);
+		return false;
+	}
+	let openingBracketCounter = 1;
 
 	while (position !== -1) {
 		let nextOpenBracketPos = methodStr.indexOf("{", position + 1);
@@ -85,16 +84,18 @@ const findMethodScope = (methodStr) => {
 			openingBracketCounter -= 1;
 		} else {
 			console.error("Should not happen!");
+			//TODO:
+			process.exit(1);
 		}
 
 		if (openingBracketCounter === 0) {
-			return methodStr.slice(startPosition, startPosition + nextCloseBracketPos);
+			return methodStr.slice(openingBracketPosition, openingBracketPosition + nextCloseBracketPos);
 		}
 	}
 };
 
-const createMocks = (method, classSuffix) => {
-	const classMethods = new Map();
+const findUsagesByType = (method, classSuffix) => {
+	const classMethods = {};
 	const regex = RegExp(`[^a-zA-Zd:][a-zA-Z0-9_.-]*${classSuffix}`);
 	let match = method.search(regex);
 	while (match !== -1) {
@@ -103,7 +104,7 @@ const createMocks = (method, classSuffix) => {
 		const endMethodNamePosition = method.indexOf("(", twoDotsAfterClass + 1);
 		const methodName = method.slice(twoDotsAfterClass + 1, endMethodNamePosition);
 		const className = method.slice(match + 1, dotAfterClass);
-		classMethods.set(className, classMethods.get(className) ? [...classMethods.get(className), methodName] : [methodName]);
+		classMethods[className] = classMethods[className] != null ? [...classMethods[className], methodName] : [methodName];
 		const nextMatch = method.slice(endMethodNamePosition).search(regex);
 		if (nextMatch === -1) {
 			match = -1;
@@ -111,12 +112,31 @@ const createMocks = (method, classSuffix) => {
 			match = endMethodNamePosition + nextMatch;
 		}
 	}
-	console.log(classMethods);
 	return classMethods;
 };
 
-if (argv.length > 2) {
-	run(argv[2]);
+const findMethodReferences = (classStr, methodName) => {
+	let position = classStr.indexOf(methodName);
+	const methodReferencePositions = [];
+	while (position !== -1) {
+		methodReferencePositions.push(position);
+		position = classStr.indexOf(methodName, position + 1);
+	}
+	return methodReferencePositions;
+};
+const findActualMethodImplementation = (classStr, methodName, methodReferences) => {
+	for (let methodReference of methodReferences) {
+		let openingBracketPosition = classStr.slice(methodReference).indexOf("{");
+		let iDeclarationEndPosition = classStr.slice(methodReference).indexOf(";");
+
+		if (openingBracketPosition > 0 && openingBracketPosition < iDeclarationEndPosition) {
+			return classStr.slice(methodReference + methodName.length);
+		}
+	}
+};
+
+if (argv.length > 3) {
+	run(argv[2], argv[3]);
 } else {
-	console.error("Missing method path parameter.");
+	console.error("Missing path parameter. arg 1 = classPath, arg2 = methodName");
 }
