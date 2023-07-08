@@ -76,7 +76,8 @@ export const initStubbedServices = (services) => {
 export const setSelectors = (selectors) => {
 	let outputStr = "";
 	Object.entries(selectors).forEach(([sel, usedMethods], index) => {
-		outputStr += `ITBA_Application_UTIL.selector.setMock(${sel});\n`;
+		const objName = tryGetObjectName(sel);
+		outputStr += `ITBA_Application_UTIL.selector.setMock(${objName.charAt(0).toLowerCase() + objName.slice(1)}SelectorMock);\n`;
 	});
 	return outputStr;
 };
@@ -84,7 +85,8 @@ export const setSelectors = (selectors) => {
 export const setDomains = (domains) => {
 	let outputStr = "";
 	Object.entries(domains).forEach(([dom, usedMethods], index) => {
-		outputStr += `ITBA_Application_UTIL.domain.setMock(${dom});\n`;
+		const objName = tryGetObjectName(dom);
+		outputStr += `ITBA_Application_UTIL.domain.setMock(${objName.charAt(0).toLowerCase() + objName.slice(1)}DomainMock);\n`;
 	});
 	return outputStr;
 };

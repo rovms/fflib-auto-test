@@ -65,10 +65,10 @@ mocks.when(userServiceMock.sObjectType()).thenReturn(User.getSObjectType());
 mocks.when(userServiceMock.refresh(-- ARGS --)).thenReturn(-- RET ARGS --);
 mocks.stopStubbing();
 
-ITBA_Application_UTIL.selector.setMock(Rovms_Users_SEL);
-ITBA_Application_UTIL.selector.setMock(Rovms_Contacts_SEL);
-ITBA_Application_UTIL.domain.setMock(Rovms_Contacts_DOM);
-ITBA_Application_UTIL.domain.setMock(Rovms_Users_DOM);
+ITBA_Application_UTIL.selector.setMock(userSelectorMock);
+ITBA_Application_UTIL.selector.setMock(contactSelectorMock);
+ITBA_Application_UTIL.domain.setMock(contactDomainMock);
+ITBA_Application_UTIL.domain.setMock(userDomainMock);
 ITBA_Application_UTIL.service.setMock(Rovms_Users_SRV.class, userServiceMock);
 
 // When
