@@ -77,7 +77,7 @@ export const setSelectors = (selectors) => {
 	let outputStr = "";
 	Object.entries(selectors).forEach(([sel, usedMethods], index) => {
 		const objName = tryGetObjectName(sel);
-		outputStr += `ITBA_Application_UTIL.selector.setMock(${objName.charAt(0).toLowerCase() + objName.slice(1)}SelectorMock);\n`;
+		outputStr += `Rovms_Application_UTIL.selector.setMock(${objName.charAt(0).toLowerCase() + objName.slice(1)}SelectorMock);\n`;
 	});
 	return outputStr;
 };
@@ -86,7 +86,7 @@ export const setDomains = (domains) => {
 	let outputStr = "";
 	Object.entries(domains).forEach(([dom, usedMethods], index) => {
 		const objName = tryGetObjectName(dom);
-		outputStr += `ITBA_Application_UTIL.domain.setMock(${objName.charAt(0).toLowerCase() + objName.slice(1)}DomainMock);\n`;
+		outputStr += `Rovms_Application_UTIL.domain.setMock(${objName.charAt(0).toLowerCase() + objName.slice(1)}DomainMock);\n`;
 	});
 	return outputStr;
 };
@@ -95,7 +95,7 @@ export const setServices = (services) => {
 	let outputStr = "";
 	Object.entries(services).forEach(([srv, usedMethods], index) => {
 		const objName = tryGetObjectName(srv);
-		outputStr += `ITBA_Application_UTIL.service.setMock(${srv}.class, ${objName.charAt(0).toLowerCase() + objName.slice(1)}ServiceMock);\n`;
+		outputStr += `Rovms_Application_UTIL.service.setMock(${srv}.class, ${objName.charAt(0).toLowerCase() + objName.slice(1)}ServiceMock);\n`;
 	});
 	return outputStr;
 };

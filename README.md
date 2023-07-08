@@ -65,11 +65,11 @@ mocks.when(userServiceMock.sObjectType()).thenReturn(User.getSObjectType());
 mocks.when(userServiceMock.refresh(-- ARGS --)).thenReturn(-- RET ARGS --);
 mocks.stopStubbing();
 
-ITBA_Application_UTIL.selector.setMock(userSelectorMock);
-ITBA_Application_UTIL.selector.setMock(contactSelectorMock);
-ITBA_Application_UTIL.domain.setMock(contactDomainMock);
-ITBA_Application_UTIL.domain.setMock(userDomainMock);
-ITBA_Application_UTIL.service.setMock(Rovms_Users_SRV.class, userServiceMock);
+Rovms_Application_UTIL.selector.setMock(userSelectorMock);
+Rovms_Application_UTIL.selector.setMock(contactSelectorMock);
+Rovms_Application_UTIL.domain.setMock(contactDomainMock);
+Rovms_Application_UTIL.domain.setMock(userDomainMock);
+Rovms_Application_UTIL.service.setMock(Rovms_Users_SRV.class, userServiceMock);
 
 // When
 Rovms_Users_SRV.newInstance().randomMethod(-- ARGS --);
@@ -83,13 +83,3 @@ Rovms_Users_SRV.newInstance().randomMethod(-- ARGS --);
 This part is output in the console and can be copy-pasted into the desired test class.
 
 Mock data, method arguments and test assertions have to be done manually (for now).
-
-**Config options**
-
-Run `todo`
-
-to change configuration.
-
-Whether to use singular or plural mode to infer object names from class names:
-
-`-nm singular` or `-nm s` or `-nm plural` or `-nm p`. Also possible to use `--nounMode` instead of `-nm`.
