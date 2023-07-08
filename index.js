@@ -9,8 +9,8 @@ const run = async (classPath, methodName) => {
 	const className = classPathElements[classPathElements.length - 1].split(".")[0];
 	let outputStr = `@isTest\nprivate static void ${methodName}_test() {\n// Set up mocks\nfflib_ApexMocks mocks = new fflib_ApexMocks();\n`;
 
-	methodName += "("; // appending '(' to make sure it's the correct method
-	if (!classStr.includes(methodName)) {
+	const methodNameWithOpeningParanthesis = methodName + "("; // appending '(' to make sure it's the correct method
+	if (!classStr.includes(methodNameWithOpeningParanthesis)) {
 		console.error(`The passed method '${methodName}' was not found in this file.`);
 		process.exit(1);
 	}
