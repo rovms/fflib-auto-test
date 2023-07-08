@@ -4,6 +4,36 @@ A simple CLI to create a test method skeleton for passed methods that were writt
 
 **Example**
 
+In order to produce a test method skeleton for the method `randomMethod` in class `Rovms_Opportunities_SRV`:
+
+```
+public class Rovms_Users_SRV {
+	public static IService newInstance() {
+		return (Rovms_Users_SRV) Rovms_Application_UTIL.service.newInstance(Rovms_Users_SRV.class);
+	}
+
+	public interface IService {
+		void randomMethod(Set<Id> userIds);
+	}
+
+	public void randomMethod(Set<Id> userIds) {
+		fflib_ISObjectUnitOfWork uow = Rovms_Application_UTIL.unitOfWork.newInstance();
+
+		List<User> users = Rovms_Users_SEL.newInstance().selectByIds(userIds);
+
+		List<Contact> contacts = Rovms_Contacts_SEL.newInstance().selectBest100();
+		Rovms_Contacts_DOM.newInstance(contacts).assignBestContacts(uow, users);
+
+		Map<String, User> firstNameToUser = Rovms_Users_DOM.newInstance(users).getFirstNameToUser();
+		Rovms_Users_SRV.newInstance().refresh(firstNameToUser);
+
+		uow.commitWork();
+	}
+}
+```
+
+Running:
+
 `fflib-auto-test examples/Rovms_Opportunities_SRV.cls randomMethod`
 
 produces something like:
@@ -46,6 +76,8 @@ Rovms_Users_SRV.newInstance().randomMethod(-- ARGS --);
 
 // Then
 //-- VERIFY TEST RESULTS --
+
+}
 ```
 
 This part is output in the console and can be copy-pasted into the desired test class.

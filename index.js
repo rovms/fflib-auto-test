@@ -45,7 +45,7 @@ const run = async (classPath, methodName) => {
 
 	outputStr += `\n// When\n`;
 	outputStr += `${className.split(".")[0]}.newInstance().${methodName}(-- ARGS --);\n`;
-	outputStr += `\n// Then\n//-- VERIFY TEST RESULTS --\n`;
+	outputStr += `\n// Then\n//-- VERIFY TEST RESULTS --\n\n}`;
 
 	console.log(outputStr);
 };
