@@ -1,7 +1,7 @@
 {
 	"name": "fflib-auto-test",
-	"version": "1.0.5",
-	"description": "",
+	"version": "1.0.5.1",
+	"description": "Create quick test skeletons for Apex methods written with fflib framework.",
 	"main": "index.js",
 	"type": "module",
 	"scripts": {
@@ -10,7 +10,14 @@
 		"config": "node ./config.js"
 	},
 	"bin": "./index.js",
-	"keywords": [],
+	"keywords": [
+		"Salesforce",
+		"fflib",
+		"Mocking",
+		"Stubbing",
+		"Unit Test",
+		"Apex"
+	],
 	"author": "",
 	"license": "ISC",
 	"dependencies": {
