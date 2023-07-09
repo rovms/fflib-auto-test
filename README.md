@@ -2,6 +2,12 @@
 
 A simple CLI to create a test method skeleton for passed methods that were written with the https://github.com/apex-enterprise-patterns/fflib-apex-common & https://github.com/apex-enterprise-patterns/fflib-apex-mocks framework.
 
+**Assumptions**
+
+The naming convention of the class names for which this tool was developed follows the `ProjectName_ObjectPlural_ClassType` pattern. So, for example `Rovms_Users_SRV` where `Rovms` is the project name, `Users` the plural of the User object and `SRV` denoting the fact that the class in question is a service class. Selector classes are detected when suffixed with `_SEL` and Domain classes when suffixed with `_DOM`.
+
+If you are using a different naming convention, please raise a PR or let me know about it and we'll add it as a configuration possibility. This is very much still a first beta version.
+
 **Example**
 
 In order to produce a test method skeleton for the method `randomMethod` in class `Rovms_Opportunities_SRV`:
